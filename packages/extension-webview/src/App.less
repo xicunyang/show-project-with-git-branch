@@ -1,0 +1,84 @@
+body,
+html {
+  padding: 0;
+  margin: 0;
+  background-color: rgb(31, 31, 31);
+  color: #fff;
+}
+
+.lander-extension-wrapper {
+  padding: 16px;
+
+  .main-title {
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+
+    span {
+      margin-left: 8px;
+    }
+  }
+
+  .body-list-wrapper {
+    height: calc(100vh - 120px);
+    overflow: scroll;
+  }
+
+  .body-wrapper {
+    margin-top: 16px;
+
+    .slide-line {
+      width: 100%;
+      height: 1px;
+      border-bottom: 1px dashed #fff;
+      margin: 4px 0;
+      opacity: 0.3;
+    }
+
+    .is-hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+    .tools-item {
+      // border: 1px solid white;
+      border-radius: 4px;
+      padding: 6px 4px;
+      margin-bottom: 4px;
+      cursor: pointer;
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+
+      .item-title {
+        font-size: 14px;
+        font-weight: 500;
+        display: flex;
+        justify-content: space-between;
+        color: rgb(204, 204, 204);
+        margin-bottom: 4px;
+
+        .item-main-title {
+          // border-bottom: 1px solid rgb(184, 184, 184);
+        }
+
+        .item-branch-name {
+          margin-left: 8px;
+          font-size: 13px;
+          color: rgb(78, 201, 176);
+          cursor: pointer;
+          border-bottom: 1px solid rgb(78, 201, 176);
+        }
+      }
+
+      .item-body {
+        .item-git-branch {
+          font-size: 12px;
+        }
+        .item-desc {
+          font-size: 12px;
+          opacity: 0.5;
+        }
+      }
+    }
+  }
+}

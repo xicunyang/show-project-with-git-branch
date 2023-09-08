@@ -1,0 +1,11 @@
+{
+  "name": "show-project-with-git-branch-monorepo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "private": true,
+  "keywords": [],
+  "scripts": {},
+  "author": "yxc945ya",
+  "license": "ISC"
+}
