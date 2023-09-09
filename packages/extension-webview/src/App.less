@@ -2,11 +2,9 @@ body,
 html {
   padding: 0;
   margin: 0;
-  background-color: rgb(31, 31, 31);
-  color: #fff;
 }
 
-.lander-extension-wrapper {
+.branch-name-list-extension-wrapper {
   padding: 16px;
 
   .main-title {
@@ -21,7 +19,7 @@ html {
 
   .body-list-wrapper {
     height: calc(100vh - 120px);
-    overflow: scroll;
+    overflow: auto;
   }
 
   .body-wrapper {
@@ -36,17 +34,16 @@ html {
     }
 
     .is-hover {
-      background-color: rgba(255, 255, 255, 0.1);
+      background-color: var(--vscode-dropdown-background);
     }
     .tools-item {
-      // border: 1px solid white;
       border-radius: 4px;
       padding: 6px 4px;
       margin-bottom: 4px;
       cursor: pointer;
 
       &:hover {
-        background-color: rgba(255, 255, 255, 0.1);
+        background-color: var(--vscode-dropdown-background);
       }
 
       .item-title {
@@ -54,12 +51,7 @@ html {
         font-weight: 500;
         display: flex;
         justify-content: space-between;
-        color: rgb(204, 204, 204);
         margin-bottom: 4px;
-
-        .item-main-title {
-          // border-bottom: 1px solid rgb(184, 184, 184);
-        }
 
         .item-branch-name {
           margin-left: 8px;
@@ -80,5 +72,14 @@ html {
         }
       }
     }
+  }
+}
+
+.branch-name-list-global-spin {
+  height: 80vh !important;
+  max-height: 80vh !important;
+
+  .ant-spin-dot-item {
+    background-color: rgb(78, 201, 176) !important;
   }
 }

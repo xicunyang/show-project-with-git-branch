@@ -13,9 +13,7 @@ export async function activate(context: vscode.ExtensionContext) {
       vscode.commands.executeCommand(`${WebviewKey}.focus`);
       setTimeout(() => {
         const webview = global._globalWebview as vscode.WebviewView;
-        console.log("webview:::", webview.webview.postMessage);
-
-        webview.webview.postMessage({ type: "SET_FOCUS" });
+        webview?.webview?.postMessage({ type: "SET_FOCUS" });
       }, 200);
     }
   );

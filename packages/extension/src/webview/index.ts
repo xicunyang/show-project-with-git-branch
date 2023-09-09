@@ -16,29 +16,21 @@ const getCurrentGitBranchName = (path: string) => {
   return destPath;
 };
 
-const openProject = (path: string) => {
-  let destPath = "";
-  try {
-    destPath = childProcess.execSync(`code ${path}`).toString();
-  } catch (e) {
-    // console.log("出错啦:", e);
-  }
-  return destPath;
-};
-
 const getFreshFolderItems = async () => {
+  // 获取最近打开的文件数据
   const recentlyOpened: any = await vscode.commands.executeCommand<
     vscode.Location[]
   >("_workbench.getRecentlyOpened");
 
-  const workspaces = recentlyOpened.workspaces as any[];
+  // 解析数据
+  const workspaces = recentlyOpened.workspaces;
 
+  // 格式化
   const formatFolderItems = workspaces.map((workspace) => {
     const originPath: string = workspace?.folderUri?.path || "";
     const originPathArr = originPath.split("/");
     const name = originPathArr.pop();
     const branchName = getCurrentGitBranchName(originPath).replace("\n", "");
-
     return {
       name,
       path: workspace?.folderUri?.path || "",
@@ -96,9 +88,20 @@ const getWebview = (webviewView: WebviewView, context) => {
       });
     }
     if (message.type === "OPEN_PROJECT") {
-      const { path } = message;
+      const { path, isOpenNew } = message;
       if (path) {
-        openProject(path);
+        // 获取最近打开的文件数据
+        const uri = vscode.Uri.file(path);
+
+        const options = isOpenNew
+          ? { forceNewWindow: true }
+          : { forceReuseWindow: true };
+
+        await vscode.commands.executeCommand<vscode.Location[]>(
+          "vscode.openFolder",
+          uri,
+          options
+        );
       }
     }
   });

@@ -1,13 +1,13 @@
 import React, { useRef, useState } from "react";
 import "./App.less";
-import { ArrowRight } from "@icon-park/react";
 import { Input, Spin, message } from "antd";
-import { useStateRealtime } from "@byted/hooks";
+import useStateRealtime from "react-usestateref";
 
-declare const window: {
+interface Window {
   _vscode: any;
-  [index: string]: any;
-};
+}
+
+declare const window: Window & typeof globalThis;
 
 export interface IFolderItem {
   name: string;
@@ -16,36 +16,47 @@ export interface IFolderItem {
 }
 
 const App = () => {
-  const [, setFolderArr, folderArr] = useStateRealtime<IFolderItem[]>([]);
-  const [, setSearchList, searchList] = useStateRealtime();
+  // 原始项目文件夹列表
+  const [folderArr, setFolderArr, folderArrRef] = useStateRealtime<
+    IFolderItem[]
+  >([]);
+  // 用户搜索后的文件夹列表
+  const [searchList, setSearchList, searchListRef] =
+    useStateRealtime<IFolderItem[]>();
+  // 全局loading
   const [globalLoading, setGlobalLoading] = useState(false);
-  const [, setCurrentHoverIndex, currentHoverIndex] = useStateRealtime(0);
+  // 当前hover的下标
+  const [currentHoverIndex, setCurrentHoverIndex, currentHoverIndexRef] =
+    useStateRealtime(0);
 
+  // 输入框Ref
   const inputRef = useRef(null);
 
-  const mapList = searchList() ? searchList() : folderArr();
+  // 当前使用的列表（搜索后，使用搜索的列表）
+  const currentUsedList = searchListRef.current
+    ? searchListRef.current
+    : folderArrRef.current;
 
-  console.log('xxxxx');
-  
-
+  // 监听插件的事件
   React.useEffect(() => {
     window._vscode.postMessage({ type: "GET_FRESH_PROJECT_WITH_GIT_BRANCH" });
 
     const handleMessage = (event: any) => {
       const msg = event.data;
       const { type, items } = msg;
+      // 获取最新的列表
       if (type === "SEND_FRESH_PROJECT_WITH_GIT_BRANCH") {
         if (items && items?.length) {
           setFolderArr([...items]);
         }
         setGlobalLoading(false);
       }
+      // loading
       if (type === "SEND_LOADING") {
         setGlobalLoading(true);
       }
+      // 输入框聚焦
       if (type === "SET_FOCUS") {
-        console.log('focus...');
-        
         inputRef?.current?.focus({
           cursor: "end",
         });
@@ -57,32 +68,35 @@ const App = () => {
     };
   }, []);
 
-  const handleOpenFolder = (path: string) => {
+  // 打开编辑器
+  const handleOpenFolder = (path: string, isOpenNew: boolean) => {
     window._vscode.postMessage({
       type: "OPEN_PROJECT",
       path,
+      isOpenNew,
     });
-    message.success("正在打开中...");
-    // window._vscode.postMessage({ type: "GET_FRESH_PROJECT_WITH_GIT_BRANCH" });
+    message.success("打开中...");
   };
 
-  const handleEnter = () => {
-    if (currentHoverIndex() >= 0) {
-      const currentItem = mapList?.[currentHoverIndex()];
+  // 处理回车事件
+  const handleEnter = (isOpenNew: boolean) => {
+    if (currentHoverIndexRef.current >= 0) {
+      const currentItem = currentUsedList?.[currentHoverIndexRef.current];
       if (currentItem) {
-        handleOpenFolder(currentItem.path);
+        handleOpenFolder(currentItem.path, isOpenNew);
       }
     }
   };
 
+  // 监听键盘上下按键
   React.useEffect(() => {
     const handleEvent = (event: any) => {
-      const maxLength = mapList?.length || 0;
+      const maxLength = currentUsedList?.length || 0;
 
       if (event.keyCode === 38) {
         // 向上
-        let next = currentHoverIndex() - 1;
-        if (currentHoverIndex() <= -1) {
+        let next = currentHoverIndexRef.current - 1;
+        if (currentHoverIndexRef.current <= -1) {
           next = -1;
         }
         if (next === -1) {
@@ -92,14 +106,13 @@ const App = () => {
         }
         setCurrentHoverIndex(next);
       } else if (event.keyCode === 40) {
-        // inputRef?.current?.blur();
         // 向下
-        const next = currentHoverIndex() + 1;
+        const next = currentHoverIndexRef.current + 1;
         if (next < maxLength) {
           setCurrentHoverIndex(next);
         }
       } else if (event.keyCode === 13) {
-        handleEnter();
+        handleEnter(event.metaKey);
       }
     };
 
@@ -107,8 +120,9 @@ const App = () => {
     return () => {
       document.removeEventListener("keydown", handleEvent);
     };
-  }, [searchList(), folderArr()]);
+  }, [searchList, folderArr]);
 
+  // 处理输入框输入事件
   const handleInput = (e: any) => {
     const keyword = e.target.value;
 
@@ -119,14 +133,15 @@ const App = () => {
       return;
     }
 
-    const finalList = [...folderArr()].filter((item) => {
-      if (item.name.includes(keyword)) {
-        return true;
-      }
-      if (item.branchName?.includes(keyword)) {
-        return true;
-      }
-      if (item.path.includes(keyword)) {
+    const finalList = [...folderArrRef.current].filter((item) => {
+      if (
+        // 项目名
+        item.name.includes(keyword) ||
+        // 分支名
+        item?.branchName?.includes(keyword) ||
+        // 路径
+        item.path.includes(keyword)
+      ) {
         return true;
       }
     });
@@ -134,39 +149,41 @@ const App = () => {
     setSearchList([...finalList]);
   };
 
+  // 上下按键时，将高亮的行居中
   React.useEffect(() => {
     const item = document.querySelector(
-      `.data-360-ecop-searcher-search-result-item-${currentHoverIndex()}`
+      `.branch-name-item-${currentHoverIndexRef.current}`
     );
     item?.scrollIntoView({
       behavior: "smooth",
+      block: "center",
     });
-  }, [currentHoverIndex()]);
+  }, [currentHoverIndex]);
 
   return (
-    <div className="lander-extension-wrapper">
+    <div className="branch-name-list-extension-wrapper">
       <div className="main-title">
-        📜<span>常用项目列表</span>
+        📜<span>常用项目列表2</span>
       </div>
-      <Spin spinning={globalLoading}>
-        <div className="body-wrapper">
-          <div style={{ marginBottom: "8px" }}>
-            <Input
-              placeholder="输入关键字搜索 项目名 / 分支"
-              onInput={handleInput}
-              ref={inputRef}
-            />
-          </div>
+      <div className="body-wrapper">
+        <div style={{ marginBottom: "8px" }}>
+          <Input
+            placeholder="输入关键字搜索 项目名 / 分支"
+            onInput={handleInput}
+            ref={inputRef}
+          />
+        </div>
+        <Spin spinning={globalLoading} className="branch-name-list-global-spin">
           <div className="body-list-wrapper">
-            {mapList?.map((folderItem, idx) => {
+            {currentUsedList?.map((folderItem, idx) => {
               return (
                 <div key={folderItem.path}>
                   <div
                     className={`tools-item ${
-                      currentHoverIndex() === idx ? "is-hover" : ""
-                    }`}
-                    onClick={() => {
-                      handleOpenFolder(folderItem.path);
+                      currentHoverIndex === idx ? "is-hover" : ""
+                    } branch-name-item-${idx}`}
+                    onClick={(e) => {
+                      handleOpenFolder(folderItem.path, e.metaKey);
                     }}
                   >
                     <div className="item-title">
@@ -190,8 +207,8 @@ const App = () => {
               );
             })}
           </div>
-        </div>
-      </Spin>
+        </Spin>
+      </div>
     </div>
   );
 };

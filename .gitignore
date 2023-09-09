@@ -1,2 +1,7 @@
 */**/node_modules
 /node_modules
+*/**/media
+*/**/dist
+/dist
+*/**/.DS_Store
+.DS_Store
