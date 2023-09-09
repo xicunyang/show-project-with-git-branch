@@ -3,7 +3,8 @@
   "displayName": "Find Project By Branch Name",
   "publisher": "xicunyang",
   "description": "你同时管理N个项目？N个项目又有M个复制工程？每个工程里有自己的分支？找不到分支对应的项目了？来试试这个！",
-  "version": "1.0.5",
+  "repository": "https://github.com/xicunyang/show-project-with-git-branch",
+  "version": "1.0.9",
   "engines": {
     "vscode": "^1.70.0"
   },

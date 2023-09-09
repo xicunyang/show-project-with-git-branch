@@ -163,7 +163,7 @@ const App = () => {
   return (
     <div className="branch-name-list-extension-wrapper">
       <div className="main-title">
-        📜<span>常用项目列表2</span>
+        📜<span>常用项目列表</span>
       </div>
       <div className="body-wrapper">
         <div style={{ marginBottom: "8px" }}>

@@ -4,12 +4,15 @@ const childProcess = require("child_process");
 
 export const WebviewKey = "show-project-with-git-branch-panel-view";
 
+const isWin = process.platform === "win32";
+
 const getCurrentGitBranchName = (path: string) => {
   let destPath = "";
+  const newPath = isWin ? path.substring(1,path.length) : path;
   try {
     destPath = childProcess
-      .execSync(`cd ${path} && git rev-parse --abbrev-ref HEAD`)
-      .toString();
+      .execSync(`cd ${newPath} && git rev-parse --abbrev-ref HEAD`)
+      .toString(); 
   } catch (e) {
     // console.log("出错啦:", e);
   }
