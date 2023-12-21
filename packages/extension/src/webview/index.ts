@@ -8,11 +8,11 @@ const isWin = process.platform === "win32";
 
 const getCurrentGitBranchName = (path: string) => {
   let destPath = "";
-  const newPath = isWin ? path.substring(1,path.length) : path;
+  const newPath = isWin ? path.substring(1, path.length) : path;
   try {
     destPath = childProcess
       .execSync(`cd ${newPath} && git rev-parse --abbrev-ref HEAD`)
-      .toString(); 
+      .toString();
   } catch (e) {
     // console.log("出错啦:", e);
   }
@@ -29,17 +29,19 @@ const getFreshFolderItems = async () => {
   const workspaces = recentlyOpened.workspaces;
 
   // 格式化
-  const formatFolderItems = workspaces.map((workspace) => {
-    const originPath: string = workspace?.folderUri?.path || "";
-    const originPathArr = originPath.split("/");
-    const name = originPathArr.pop();
-    const branchName = getCurrentGitBranchName(originPath).replace("\n", "");
-    return {
-      name,
-      path: workspace?.folderUri?.path || "",
-      branchName,
-    };
-  });
+  const formatFolderItems = workspaces
+    .map((workspace) => {
+      const originPath: string = workspace?.folderUri?.path || "";
+      const originPathArr = originPath.split("/");
+      const name = originPathArr.pop();
+      const branchName = getCurrentGitBranchName(originPath).replace("\n", "");
+      return {
+        name,
+        path: workspace?.folderUri?.path || "",
+        branchName,
+      };
+    })
+    .filter((item) => Boolean(item.branchName));
 
   return formatFolderItems;
 };
